@@ -5,7 +5,8 @@ var express = require('express'),
   fs = require('fs'),
   os = require('os'),
   formidable = require('formidable'),
-  gm = require('gm')
+  gm = require('gm'),
+  mongoose = require('mongoose').connect(config.dbURL);
 
 
 var app = express();
@@ -26,14 +27,15 @@ var knowClient = know.createCLient({
   bucket: config.S3Bucket
 });
 
-//send the express and the app to the module
-require('./routes/routes.js')(express,app, formidable, fs, os, gm);
 
 
 // http server and socket.io
 var server = require('http').createServer(app);
 var io = require('socket.io')(server);
 
+
+//send the express and the app and other modules to the route handler
+require('./routes/routes.js')(express,app, formidable, fs, os, gm, knowClient, mongoose, io);
 
 
 server.listen(app.get('port'), function(){

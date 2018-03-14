@@ -6,6 +6,7 @@
 	<link rel="stylesheet" href="../css/main.css">
 	<script src="http://code.jquery.com/jquery-1.11.0.min.js"></script>
 	<script src="../js/photogrid_utils.js"></script>
+	<script src="/socket.io/socket.io.js"></script>
 	<script>
 		$(function() {
 			var host = '{{host}}';
@@ -13,6 +14,17 @@
 			$(document).on('click', '#doUpload', function() {
 				uploadNow();
 			});
+
+			var socket = io(host);
+
+			// listen to status
+			socket.on('status', function(data) {
+				showStatus(data.msg, data.delay);
+			});
+
+			socket.on('doUpdate', function(){
+				renderList();
+			})
 
 
 			function uploadNow() {
@@ -44,6 +56,8 @@
 
 				}
 			}
+
+			
 		})
 	</script>
 
