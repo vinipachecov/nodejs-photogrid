@@ -1,7 +1,7 @@
 var express = require('express'),
   path = require('path'),
   config = require('./config/config.js'),
-  know = require('knox'),
+  knox = require('knox'),
   fs = require('fs'),
   os = require('os'),
   formidable = require('formidable'),
@@ -20,9 +20,9 @@ app.set('port', process.env.PORT || 3000);
 app.set('host', config.host);
 
 //Knox config
-var knowClient = know.createCLient({
-  //3 values key, secret, bucket
-  key: config.S3AcessKey,
+//3 values key, secret, bucket
+var knoxClient = knox.createClient({  
+  key: config.S3AccessKey,
   secret: config.S3Secret,
   bucket: config.S3Bucket
 });
@@ -35,7 +35,7 @@ var io = require('socket.io')(server);
 
 
 //send the express and the app and other modules to the route handler
-require('./routes/routes.js')(express,app, formidable, fs, os, gm, knowClient, mongoose, io);
+require('./routes/routes.js')(express,app, formidable, fs, os, gm, knoxClient, mongoose, io);
 
 
 server.listen(app.get('port'), function(){
