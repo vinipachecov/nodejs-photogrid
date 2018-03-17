@@ -45,7 +45,7 @@ module.exports = function(express, app, formidable, fs, os, gm, knoxClient, mong
     newForm.parse(req, function(err, fields, files) {
       tmpFile = files.upload.path;
       fname = generateFilename(files.upload.name);
-      nfile = os.tmpDir() + '/' + fname;
+      nfile = os.tmpdir() + '/' + fname;
       //send back as a response
       res.writeHead(200, {'Content-type':'text/plain'});
       res.end();
@@ -70,6 +70,8 @@ module.exports = function(express, app, formidable, fs, os, gm, knoxClient, mong
             req.on('response', function() {
               if (res.statusCode === 200) {
                 // this means that the file is really in the S3 bucket :)
+
+                //Save the image in the MongoDB
                 var newImage = new singleImageModel({
                     filename: fname,
                     votes: 0
@@ -98,6 +100,31 @@ module.exports = function(express, app, formidable, fs, os, gm, knoxClient, mong
       })
     })
   });
+
+
+  router.get('/getimages', function(req, res ,next) {
+    singleImageModel.find({}, null, {sort:{ votes:-1}}, function(err, result) {
+      res.send(JSON.stringify(result));
+    })
+  })
+
+  router.get('/voteup/:id', function(req, res, next) {
+    console.log('voting...');
+    //find a particular image in the database    
+    //first param is the id of what we want
+    //increment of the key 'votes' by one
+    singleImageModel.findByIdAndUpdate(req.params.id, {$inc:{votes:1}}, function(err, result) {      
+      res.send(200, {votes:result.votes});
+    })
+  })
+
+  
+// router.get('/voteup/:id', function(req, res, next){
+//   console.log('voting now');
+// 	singleImageModel.findByIdAndUpdate(req.params.id, {$inc:{votes:1}}, function(err, result){
+// 		res.send(200, {votes:result.votes});
+// 	})
+// })
   app.use('/', router);
 }
 
